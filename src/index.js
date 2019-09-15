@@ -12,9 +12,20 @@ app.use(express.json()) // auto parse req json to object
  * Tasks collections CRUD endpoints
  */
 
-// create a new task
+// Create a new task
 app.post('/tasks', (req, res) => {
-  res.send('Great success!')
+  // Create a new instance of the Task model
+  const task = new Task(req.body)
+
+  // INSERT the instance into the tasks collection
+  task.save().then(() => {
+    // respond with task
+    res.send(task)
+  }).catch(err => {
+    res.status(400)
+    res.send(err)
+  })
+
 })
 
 // retrieve all tasks
