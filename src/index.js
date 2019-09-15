@@ -83,9 +83,21 @@ app.get('/users', (req, res) => {
     })
 })
 
-// retrieve a single user
+// Read a single user
 app.get('/users/:id', (req, res) => {
-  res.send('Great success!')
+    // SELECT users from from User collection
+  User.findById(req.params.id)
+    .then(user => {
+      if (!user) {
+        // no user with that ID found
+        res.status(404).send()
+      }
+      // respond with the user
+      res.send(user)
+    })
+    .catch(e => {
+      res.status(500).send(e)
+    })
 })
 
 // update a user
