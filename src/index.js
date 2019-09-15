@@ -40,9 +40,21 @@ app.delete('/tasks/:id', (req, res) => {
  * Users collections CRUD endpoints
  */
 
-// create a new user
+// Create a new user
 app.post('/users', (req, res) => {
-  res.send('Great success!')
+  // Create a new instance of the document model
+  const user = new User(req.body)
+
+  // INSERT the instance (document) to the collection
+  user.save()
+    // respond with user
+    .then(() => {
+    res.send(user)
+  })
+    .catch(err => {
+    res.status(400)
+    res.send(err)
+  })
 })
 
 // retrieve all users
@@ -64,7 +76,6 @@ app.patch('/users/:id', (req, res) => {
 app.delete('/users/:id', (req, res) => {
   res.send('Great success!')
 })
-
 
 app.listen(port, () => {
   console.log('Server is listening on port: ' + port)
