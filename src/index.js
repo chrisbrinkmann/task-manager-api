@@ -18,13 +18,15 @@ app.post('/tasks', (req, res) => {
   const task = new Task(req.body)
 
   // INSERT the instance into the tasks collection
-  task.save().then(() => {
-    // respond with task
-    res.status(201).send(task)
-  }).catch(err => {
-    res.status(400).send(err)
-  })
-
+  task
+    .save()
+    .then(() => {
+      // respond with task
+      res.status(201).send(task)
+    })
+    .catch(err => {
+      res.status(400).send(err)
+    })
 })
 
 // retrieve all tasks
@@ -57,19 +59,28 @@ app.post('/users', (req, res) => {
   const user = new User(req.body)
 
   // INSERT the instance (document) to the collection
-  user.save()
+  user
+    .save()
     // respond with user
     .then(() => {
-    res.status(201).send(user)
-  })
+      res.status(201).send(user)
+    })
     .catch(err => {
-    res.status(400).send(err)
-  })
+      res.status(400).send(err)
+    })
 })
 
-// retrieve all users
+// Read all users
 app.get('/users', (req, res) => {
-  res.send('Great success!')
+  // SELECT users from from User collection
+  User.find({})
+    .then(users => {
+      // respond with the user
+      res.send(users)
+    })
+    .catch(e => {
+      res.status(500).send(e)
+    })
 })
 
 // retrieve a single user
