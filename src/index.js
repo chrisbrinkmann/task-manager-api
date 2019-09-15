@@ -29,22 +29,42 @@ app.post('/tasks', (req, res) => {
     })
 })
 
-// retrieve all tasks
+// Retrieve all tasks
 app.get('/tasks', (req, res) => {
-  res.send('Great success!')
+  // SELECT tasks from from Tasks collection
+  Task.find({})
+    .then(tasks => {
+      // respond with the tasks
+      res.send(tasks)
+    })
+    .catch(e => {
+      res.status(500).send(e)
+    })
 })
 
-// retrieve a single task
+// Retrieve a single task
 app.get('/tasks/:id', (req, res) => {
-  res.send('Great success!')
+  // SELECT task from from Task collection
+  Task.findById(req.params.id)
+    .then(task => {
+      if (!task) {
+        // no task with that ID found
+        res.status(404).send()
+      }
+      // respond with the task
+      res.send(task)
+    })
+    .catch(e => {
+      res.status(500).send(e)
+    })
 })
 
-// update a task
+// Update a task
 app.patch('/tasks/:id', (req, res) => {
   res.send('Great success!')
 })
 
-//delete a task
+// Delete a task
 app.delete('/tasks/:id', (req, res) => {
   res.send('Great success!')
 })
@@ -72,10 +92,10 @@ app.post('/users', (req, res) => {
 
 // Read all users
 app.get('/users', (req, res) => {
-  // SELECT users from from User collection
+  // SELECT users from from Users collection
   User.find({})
     .then(users => {
-      // respond with the user
+      // respond with the users
       res.send(users)
     })
     .catch(e => {
@@ -100,12 +120,12 @@ app.get('/users/:id', (req, res) => {
     })
 })
 
-// update a user
+// Update a user
 app.patch('/users/:id', (req, res) => {
   res.send('Great success!')
 })
 
-//delete a user
+// Delete a user
 app.delete('/users/:id', (req, res) => {
   res.send('Great success!')
 })
