@@ -20,10 +20,9 @@ app.post('/tasks', (req, res) => {
   // INSERT the instance into the tasks collection
   task.save().then(() => {
     // respond with task
-    res.send(task)
+    res.status(201).send(task)
   }).catch(err => {
-    res.status(400)
-    res.send(err)
+    res.status(400).send(err)
   })
 
 })
@@ -61,11 +60,10 @@ app.post('/users', (req, res) => {
   user.save()
     // respond with user
     .then(() => {
-    res.send(user)
+    res.status(201).send(user)
   })
     .catch(err => {
-    res.status(400)
-    res.send(err)
+    res.status(400).send(err)
   })
 })
 
