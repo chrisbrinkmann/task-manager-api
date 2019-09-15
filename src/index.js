@@ -3,6 +3,10 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
 
+/**
+ * Tasks collections CRUD endpoints
+ */
+
 // create a new task
 app.post('/tasks', (req, res) => {
   res.send('Great success!')
@@ -28,6 +32,34 @@ app.delete('/tasks/:id', (req, res) => {
   res.send('Great success!')
 })
 
+/**
+ * Users collections CRUD endpoints
+ */
+
+// create a new user
+app.post('/users', (req, res) => {
+  res.send('Great success!')
+})
+
+// retrieve all users
+app.get('/users', (req, res) => {
+  res.send('Great success!')
+})
+
+// retrieve a single user
+app.get('/users/:id', (req, res) => {
+  res.send('Great success!')
+})
+
+// update a user
+app.patch('/users/:id', (req, res) => {
+  res.send('Great success!')
+})
+
+//delete a user
+app.delete('/users/:id', (req, res) => {
+  res.send('Great success!')
+})
 
 
 app.listen(port, () => {
