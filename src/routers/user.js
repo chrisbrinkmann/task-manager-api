@@ -60,24 +60,24 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-        // SELECT user document instance by Id and cache
-        const user = await User.findById(req.params.id)
+    // SELECT user document instance by Id and cache
+    const user = await User.findById(req.params.id)
 
-        // modify cached document instance fields
-        updates.map(update => {
-          user[update] = req.body[update]
-        })
+    if (!user) {
+      // no user with that ID found
+      return res.status(404).send()
+    }
 
-        // UPDATE/SET modified instance in users collection
-        await user.save()
+    // modify cached document instance fields
+    updates.map(update => {
+      user[update] = req.body[update]
+    })
 
-        if (!user) {
-          // no user with that ID found
-          return res.status(404).send()
-        }
+    // UPDATE/SET modified instance in users collection
+    await user.save()
 
-        res.send(user) // Success; respond with the updated user object
-      } catch (e) {
+    res.send(user) // Success; respond with the updated user object
+  } catch (e) {
     res.status(400).send(e)
   }
 })

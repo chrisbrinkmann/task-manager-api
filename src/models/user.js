@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcryptjs')
 
-// define field model for users collection
-// mongoose automatically creates collection with plural+lowercase name of model
-const User = mongoose.model('User', {
+// cache db collection schema
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -15,7 +15,7 @@ const User = mongoose.model('User', {
     required: true,
     trim: true,
     validate(value) {
-      if (value.toLowerCase().includes('password')){
+      if (value.toLowerCase().includes('password')) {
         throw new Error('Error: password cannot contain "password"')
       }
     }
@@ -41,5 +41,22 @@ const User = mongoose.model('User', {
     lowercase: true
   }
 })
+
+// password hashing middleware; runs before any call to .save()
+userSchema.pre('save', async function (next) {
+  const user = this // for readability; this = document calling .save()
+
+  // if password field is created of modified
+  if (user.isModified('password')) {
+    // encrypt the pw
+    user.password = await bcrypt.hash(user.password, 9)
+  }
+
+  next() // calls the next middlware in lexical order
+})
+
+// define field model for users collection
+// mongoose automatically creates collection with plural+lowercase name of model
+const User = mongoose.model('User', userSchema)
 
 module.exports = User
