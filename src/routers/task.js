@@ -61,16 +61,21 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 
   try {
-    // UPDATE/SET field(s) for task document in tasks collection
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    })
+    // SELECT task document by id and cache
+    const task = await Task.findByIdAndUpdate(req.params.id)
 
     if (!task) {
       // no task with that ID found
       return res.status(404).send()
     }
+
+    // modify cached document fields
+    updates.map(update => {
+      task[update] = req.body[update]
+    })
+
+    // UPDATE/SET modified task document in tasks collection
+    task.save()
 
     res.send(task) // respond with the updated task object
   } catch (e) {
