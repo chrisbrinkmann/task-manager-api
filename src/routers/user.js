@@ -60,19 +60,24 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-    // UPDATE/SET field(s) for user document in users collection
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    })
+        // SELECT user document instance by Id and cache
+        const user = await User.findById(req.params.id)
 
-    if (!user) {
-      // no user with that ID found
-      return res.status(404).send()
-    }
+        // modify cached document instance fields
+        updates.map(update => {
+          user[update] = req.body[update]
+        })
 
-    res.send(user) // Success; respond with the updated user object
-  } catch (e) {
+        // UPDATE/SET modified instance in users collection
+        await user.save()
+
+        if (!user) {
+          // no user with that ID found
+          return res.status(404).send()
+        }
+
+        res.send(user) // Success; respond with the updated user object
+      } catch (e) {
     res.status(400).send(e)
   }
 })
@@ -93,6 +98,5 @@ router.delete('/users/:id', async (req, res) => {
     res.status(500).send()
   }
 })
-
 
 module.exports = router
