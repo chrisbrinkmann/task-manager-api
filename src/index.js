@@ -12,7 +12,7 @@ app.use(express.json()) // auto parse req json to object
  * Tasks collections CRUD endpoints
  */
 
-// Create a new task
+// Create a new task document
 app.post('/tasks', async (req, res) => {
   // Create a new instance of the Task model
   const task = new Task(req.body)
@@ -29,7 +29,7 @@ app.post('/tasks', async (req, res) => {
 // Retrieve all tasks
 app.get('/tasks', async (req, res) => {
   try {
-    // SELECT tasks from from Tasks collection
+    // SELECT all tasks from tasks collection
     const tasks = await Task.find({})
     res.send(tasks) // respond with an array of tasks
   } catch (e) {
@@ -40,12 +40,12 @@ app.get('/tasks', async (req, res) => {
 // Retrieve a single task
 app.get('/tasks/:id', async (req, res) => {
   try {
-    // SELECT task from from Task collection
+    // SELECT a task from the tasks collection
     const task = await Task.findById(req.params.id)
 
     if (!task) {
       // no task with that ID found
-      res.status(404).send()
+      return res.status(404).send()
     }
     res.send(task) // respond with the task object
   } catch (e) {
@@ -67,7 +67,7 @@ app.delete('/tasks/:id', (req, res) => {
  * Users collections CRUD endpoints
  */
 
-// Create a new user
+// Create a new user document
 app.post('/users', async (req, res) => {
   // Create a new instance of the document model
   const user = new User(req.body)
@@ -84,7 +84,7 @@ app.post('/users', async (req, res) => {
 // Read all users
 app.get('/users', async (req, res) => {
   try {
-    // SELECT users from from Users collection
+    // SELECT all users from users collection
     const users = await User.find({})
     res.send(users) // respond with array of users
   } catch (e) {
@@ -95,11 +95,11 @@ app.get('/users', async (req, res) => {
 // Read a single user
 app.get('/users/:id', async (req, res) => {
   try {
-    // SELECT users from from User collection
+    // SELECT a user from users collection
     const user = await User.findById(req.params.id)
     if (!user) {
       // no user with that ID found
-      res.status(404).send()
+      return res.status(404).send()
     }
     res.send(user) // respond with the user object
   } catch (e) {
@@ -108,8 +108,28 @@ app.get('/users/:id', async (req, res) => {
 })
 
 // Update a user
-app.patch('/users/:id', (req, res) => {
-  res.send('Great success!')
+app.patch('/users/:id', async (req, res) => {
+  // only allow certain field updates
+  const updates = Object.keys(req.body)
+  const allowedUpdates = ['name', 'email', 'password', 'age']
+  const isValidOperation = updates.every(update => allowedUpdates.includes(update))
+  if (!isValidOperation) {
+    return res.status(400).send({error: 'Invalid updates!'})
+  }
+
+  try {
+    // UPDATE/SET field(s) for user document in users collection
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {new:true, runValidators:true,})
+    
+    if (!user) {
+      // no user with that ID found
+      return res.status(404).send()
+    }
+    
+    res.send(user)
+  } catch (e) {
+    res.status(400).send(e)
+  }
 })
 
 // Delete a user
