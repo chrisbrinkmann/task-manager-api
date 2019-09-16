@@ -62,7 +62,7 @@ router.patch('/tasks/:id', async (req, res) => {
 
   try {
     // SELECT task document by id and cache
-    const task = await Task.findByIdAndUpdate(req.params.id)
+    const task = await Task.findById(req.params.id)
 
     if (!task) {
       // no task with that ID found
