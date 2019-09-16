@@ -13,50 +13,44 @@ app.use(express.json()) // auto parse req json to object
  */
 
 // Create a new task
-app.post('/tasks', (req, res) => {
+app.post('/tasks', async (req, res) => {
   // Create a new instance of the Task model
   const task = new Task(req.body)
 
-  // INSERT the instance into the tasks collection
-  task
-    .save()
-    .then(() => {
-      // respond with task
-      res.status(201).send(task)
-    })
-    .catch(err => {
-      res.status(400).send(err)
-    })
+  try {
+    // INSERT the instance into the tasks collection
+    await task.save()
+    res.status(201).send(task) // respond with the task object
+  } catch (e) {
+    res.status(400).send(err)
+  }
 })
 
 // Retrieve all tasks
-app.get('/tasks', (req, res) => {
-  // SELECT tasks from from Tasks collection
-  Task.find({})
-    .then(tasks => {
-      // respond with the tasks
-      res.send(tasks)
-    })
-    .catch(e => {
-      res.status(500).send(e)
-    })
+app.get('/tasks', async (req, res) => {
+  try {
+    // SELECT tasks from from Tasks collection
+    const tasks = await Task.find({})
+    res.send(tasks) // respond with an array of tasks
+  } catch (e) {
+    res.status(500).send(e)
+  }
 })
 
 // Retrieve a single task
-app.get('/tasks/:id', (req, res) => {
-  // SELECT task from from Task collection
-  Task.findById(req.params.id)
-    .then(task => {
-      if (!task) {
-        // no task with that ID found
-        res.status(404).send()
-      }
-      // respond with the task
-      res.send(task)
-    })
-    .catch(e => {
-      res.status(500).send(e)
-    })
+app.get('/tasks/:id', async (req, res) => {
+  try {
+    // SELECT task from from Task collection
+    const task = await Task.findById(req.params.id)
+
+    if (!task) {
+      // no task with that ID found
+      res.status(404).send()
+    }
+    res.send(task) // respond with the task object
+  } catch (e) {
+    res.status(500).send(e)
+  }
 })
 
 // Update a task
@@ -74,50 +68,43 @@ app.delete('/tasks/:id', (req, res) => {
  */
 
 // Create a new user
-app.post('/users', (req, res) => {
+app.post('/users', async (req, res) => {
   // Create a new instance of the document model
   const user = new User(req.body)
 
-  // INSERT the instance (document) to the collection
-  user
-    .save()
-    // respond with user
-    .then(() => {
-      res.status(201).send(user)
-    })
-    .catch(err => {
-      res.status(400).send(err)
-    })
+  try {
+    // INSERT the document instance into the collection
+    await user.save()
+    res.status(201).send(user) // respond with user object
+  } catch (e) {
+    res.status(400).send(err)
+  }
 })
 
 // Read all users
-app.get('/users', (req, res) => {
-  // SELECT users from from Users collection
-  User.find({})
-    .then(users => {
-      // respond with the users
-      res.send(users)
-    })
-    .catch(e => {
-      res.status(500).send(e)
-    })
+app.get('/users', async (req, res) => {
+  try {
+    // SELECT users from from Users collection
+    const users = await User.find({})
+    res.send(users) // respond with array of users
+  } catch (e) {
+    res.status(500).send(e)
+  }
 })
 
 // Read a single user
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
+  try {
     // SELECT users from from User collection
-  User.findById(req.params.id)
-    .then(user => {
-      if (!user) {
-        // no user with that ID found
-        res.status(404).send()
-      }
-      // respond with the user
-      res.send(user)
-    })
-    .catch(e => {
-      res.status(500).send(e)
-    })
+    const user = await User.findById(req.params.id)
+    if (!user) {
+      // no user with that ID found
+      res.status(404).send()
+    }
+    res.send(user) // respond with the user object
+  } catch (e) {
+    res.status(500).send(e)
+  }
 })
 
 // Update a user
