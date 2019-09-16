@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000
 app.use(express.json()) // auto parse req json to object
 
 /**
- * Tasks collections CRUD endpoints
+ * Tasks collection CRUD endpoints
  */
 
 // Create a new task document
@@ -54,8 +54,34 @@ app.get('/tasks/:id', async (req, res) => {
 })
 
 // Update a task
-app.patch('/tasks/:id', (req, res) => {
-  res.send('Great success!')
+app.patch('/tasks/:id', async (req, res) => {
+  // only allow updates to certain fields
+  const updates = Object.keys(req.body)
+  const allowedUpdates = ['description', 'completed']
+  const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  )
+
+  if (!isValidOperation) {
+    return res.status(400).send({ error: 'Invalid updates!' })
+  }
+
+  try {
+    // UPDATE/SET field(s) for task document in tasks collection
+    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    })
+
+    if (!task) {
+      // no task with that ID found
+      return res.status(404).send()
+    }
+
+    res.send(task) // respond with the updated task object
+  } catch (e) {
+    res.status(400).send(e)
+  }
 })
 
 // Delete a task
@@ -64,7 +90,7 @@ app.delete('/tasks/:id', (req, res) => {
 })
 
 /**
- * Users collections CRUD endpoints
+ * Users collection CRUD endpoints
  */
 
 // Create a new user document
@@ -109,24 +135,30 @@ app.get('/users/:id', async (req, res) => {
 
 // Update a user
 app.patch('/users/:id', async (req, res) => {
-  // only allow certain field updates
+  // only allow certain updates to certain fields
   const updates = Object.keys(req.body)
   const allowedUpdates = ['name', 'email', 'password', 'age']
-  const isValidOperation = updates.every(update => allowedUpdates.includes(update))
+  const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  )
+
   if (!isValidOperation) {
-    return res.status(400).send({error: 'Invalid updates!'})
+    return res.status(400).send({ error: 'Invalid updates!' })
   }
 
   try {
     // UPDATE/SET field(s) for user document in users collection
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {new:true, runValidators:true,})
-    
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    })
+
     if (!user) {
       // no user with that ID found
       return res.status(404).send()
     }
-    
-    res.send(user)
+
+    res.send(user) // Success; respond with the updated user object
   } catch (e) {
     res.status(400).send(e)
   }
