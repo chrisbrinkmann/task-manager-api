@@ -41,7 +41,13 @@ const userSchema = new mongoose.Schema({
     },
     trim: true,
     lowercase: true
-  }
+  },
+  tokens: [{
+    token: {
+      type: String,
+      required: true
+    }
+  }]
 })
 
 /**
