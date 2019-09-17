@@ -6,15 +6,16 @@ const router = new express.Router() // create express router object
  * Users collection CRUD endpoints
  */
 
-// Create a new user document
+// Create a new user document - "sign up"
 router.post('/users', async (req, res) => {
   // Create a new instance of the document model
   const user = new User(req.body)
 
   try {
-    // INSERT the document instance into the collection
-    await user.save()
-    res.status(201).send(user) // respond with user object
+    // create user JWT (also saves user instance to collection)
+    const token = await user.generateAuthToken()
+
+    res.status(201).send({ user, token }) // respond with user object
   } catch (e) {
     res.status(400).send(e)
   }
@@ -25,8 +26,9 @@ router.post('/users/login', async (req, res) => {
   try {
     // SELECT user document by email and password and cache
     const user = await User.findByCredentials(req.body.email, req.body.password)
-    
-    const token = await user.generateAuthToken() // cache user JWT
+
+    // create user JWT (also saves user instance to collection)
+    const token = await user.generateAuthToken()
 
     res.send({ user, token }) // respond with the user object, JWT
   } catch (e) {
