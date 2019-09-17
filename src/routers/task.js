@@ -1,5 +1,6 @@
 const express = require('express')
 const Task = require('../models/task')
+const auth = require('../middleware/auth')
 const router = new express.Router() // create express router object
 
 /**
@@ -7,9 +8,12 @@ const router = new express.Router() // create express router object
  */
 
 // Create a new task document
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', auth, async (req, res) => {
   // Create a new instance of the Task model
-  const task = new Task(req.body)
+  const task = new Task({
+    ...req.body,
+    owner: req.user._id
+  })
 
   try {
     // INSERT the instance into the tasks collection
