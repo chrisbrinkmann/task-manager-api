@@ -1,5 +1,6 @@
 const express = require('express')
 const User = require('../models/user')
+const auth = require('../middleware/auth')
 const router = new express.Router() // create express router object
 
 /**
@@ -36,15 +37,9 @@ router.post('/users/login', async (req, res) => {
   }
 })
 
-// Read all users
-router.get('/users', async (req, res) => {
-  try {
-    // SELECT all users from users collection
-    const users = await User.find({})
-    res.send(users) // respond with array of users
-  } catch (e) {
-    res.status(500).send(e)
-  }
+// Read current user profile
+router.get('/users/me', auth, async (req, res) => {
+  res.send(req.user)
 })
 
 // Read a single user
