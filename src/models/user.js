@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
     validate(value) {
       if (!validator.isEmail(value)) {
         throw new Error('Email is invalid')
@@ -41,6 +42,28 @@ const userSchema = new mongoose.Schema({
     lowercase: true
   }
 })
+
+// returns user document for given email and password combo
+userSchema.statics.findByCredentials = async (email, password) => {
+  // SELECT the user document by email
+  const user = await User.findOne({ email })
+
+  if (!user) {
+    // no user with that email found
+    throw new Error('Unable to log in')
+  }
+
+  // compare given password with document password
+  const isMatch = await bcrypt.compare(password, user.password)
+
+  if (!isMatch) {
+    // passwords don't match
+    throw new Error('Unable to log in')
+  }
+
+  // email and passwords match, return user document
+  return user
+}
 
 // password hashing middleware; runs before any call to .save()
 userSchema.pre('save', async function (next) {
