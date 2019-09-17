@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Task = require('./task')
 
 // cache db collection schema
 const userSchema = new mongoose.Schema({
@@ -126,7 +127,7 @@ userSchema.methods.toJSON = function () {
  * Middleware (document)
  */
 
-// Encrypt user password; runs before any call to .save()
+// Encrypt user password; runs before any call to user.save()
 userSchema.pre('save', async function (next) {
   const user = this // for readability; this = document calling .save()
 
@@ -137,6 +138,16 @@ userSchema.pre('save', async function (next) {
   }
 
   next() // calls the next middlware in lexical order
+})
+
+// Delete tasks of deleted user; runs before any call of user.remove()
+userSchema.pre('remove', async function (next) {
+  const user = this // the document calling .remove()
+
+  // DELETE any tasks WHERE owner === user._id
+  Task.deleteMany({ owner: user._id })
+
+  next()
 })
 
 // define field model for users collection
