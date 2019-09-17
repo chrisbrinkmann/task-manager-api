@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 // cache db collection schema
 const userSchema = new mongoose.Schema({
@@ -43,6 +44,10 @@ const userSchema = new mongoose.Schema({
   }
 })
 
+/**
+ * Model Methods
+ */
+
 // returns user document for given email and password combo
 userSchema.statics.findByCredentials = async (email, password) => {
   // SELECT the user document by email
@@ -65,7 +70,22 @@ userSchema.statics.findByCredentials = async (email, password) => {
   return user
 }
 
-// password hashing middleware; runs before any call to .save()
+/**
+ * Instance Methods
+ */
+
+// Generate and return a JWT for a user
+userSchema.methods.generateAuthToken = async function () {
+  const user = this
+  const token = jwt.sign({ _id: user._id.toString()}, 'fitwindsam')
+  return token
+}
+
+/**
+ * Middleware (document)
+ */
+
+// Encrypt user password; runs before any call to .save()
 userSchema.pre('save', async function (next) {
   const user = this // for readability; this = document calling .save()
 
