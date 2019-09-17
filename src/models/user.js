@@ -83,7 +83,16 @@ userSchema.statics.findByCredentials = async (email, password) => {
 // Generate and return a JWT for a user
 userSchema.methods.generateAuthToken = async function () {
   const user = this
+
+  // generate JWT from user's id and secret
   const token = jwt.sign({ _id: user._id.toString()}, 'fitwindsam')
+  
+  // Add JWT to user's props
+  user.tokens = user.tokens.concat({ token })
+
+  // INSERT/UPDATE user document to users collection
+  await user.save()
+
   return token
 }
 
