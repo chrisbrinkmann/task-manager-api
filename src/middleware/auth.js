@@ -18,8 +18,9 @@ const auth = async (req, res, next) => {
       throw new Error()
     }
 
-    // matching user found; attach user document to request props
+    // matching user found; attach user document and token to request props
     req.user = user
+    req.token = token
 
     next()
   } catch (e) {
