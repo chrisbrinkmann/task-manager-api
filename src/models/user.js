@@ -97,7 +97,7 @@ userSchema.methods.generateAuthToken = async function () {
 }
 
 // Hide user password and token props
-// runs whenever instance of user is passed to JSON.stringify (res.send())
+// triggered whenever instance of user is passed to JSON.stringify (res.send())
 userSchema.methods.toJSON = function () {
   const user = this
   

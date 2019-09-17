@@ -43,6 +43,7 @@ router.post('/users/logout', auth, async (req, res) => {
     // loop over all current user tokens
     req.user.tokens = req.user.tokens.filter(token => {
       // remove only the user token matching request token
+      // note each user token has a token prop (token.token)
       return token.token !== req.token
     })
     // save updated user document to the db
@@ -72,21 +73,6 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 // Read current user profile
 router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
-})
-
-// Read a single user
-router.get('/users/:id', async (req, res) => {
-  try {
-    // SELECT a user from users collection
-    const user = await User.findById(req.params.id)
-    if (!user) {
-      // no user with that ID found
-      return res.status(404).send()
-    }
-    res.send(user) // respond with the user object
-  } catch (e) {
-    res.status(500).send(e)
-  }
 })
 
 // Update a user
