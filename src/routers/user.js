@@ -37,7 +37,7 @@ router.post('/users/login', async (req, res) => {
   }
 })
 
-// Log out a user
+// Log out a user from current session
 router.post('/users/logout', auth, async (req, res) => {
   try {
     // loop over all current user tokens
@@ -45,6 +45,21 @@ router.post('/users/logout', auth, async (req, res) => {
       // remove only the user token matching request token
       return token.token !== req.token
     })
+    // save updated user document to the db
+    await req.user.save()
+
+    res.send()
+  } catch (e) {
+    res.status(500).send()
+  }
+})
+
+// Log out a user from all sessions
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try {
+    // wipe all current user tokens
+    req.user.tokens = []
+
     // save updated user document to the db
     await req.user.save()
 
