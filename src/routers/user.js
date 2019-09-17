@@ -37,6 +37,23 @@ router.post('/users/login', async (req, res) => {
   }
 })
 
+// Log out a user
+router.post('/users/logout', auth, async (req, res) => {
+  try {
+    // loop over all current user tokens
+    req.user.tokens = req.user.tokens.filter(token => {
+      // remove only the user token matching request token
+      return token.token !== req.token
+    })
+    // save updated user document to the db
+    await req.user.save()
+
+    res.send()
+  } catch (e) {
+    res.status(500).send()
+  }
+})
+
 // Read current user profile
 router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
