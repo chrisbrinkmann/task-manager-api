@@ -35,16 +35,21 @@ router.get('/tasks', async (req, res) => {
   }
 })
 
-// Retrieve a single task
-router.get('/tasks/:id', async (req, res) => {
+// Retrieve a single task by id
+router.get('/tasks/:id', auth, async (req, res) => {
+  // cache req param id
+  const _id = req.params.id
+  
   try {
     // SELECT a task from the tasks collection
-    const task = await Task.findById(req.params.id)
+    // WHERE task id matches req param and owner matches req user id
+    const task = await Task.findOne({_id, owner: req.user._id})
 
     if (!task) {
       // no task with that ID found
       return res.status(404).send()
     }
+
     res.send(task) // respond with the task object
   } catch (e) {
     res.status(500).send(e)
