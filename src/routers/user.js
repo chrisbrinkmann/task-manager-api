@@ -76,7 +76,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 // Update a user
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
   // only allow certain updates to certain fields
   const updates = Object.keys(req.body)
   const allowedUpdates = ['name', 'email', 'password', 'age']
@@ -89,23 +89,15 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-    // SELECT user document by Id and cache
-    const user = await User.findById(req.params.id)
-
-    if (!user) {
-      // no user with that ID found
-      return res.status(404).send()
-    }
-
-    // modify cached document fields
+    // modify current user fields
     updates.map(update => {
-      user[update] = req.body[update]
+      req.user[update] = req.body[update]
     })
 
     // UPDATE/SET modified document in users collection
-    await user.save()
+    await req.user.save()
 
-    res.send(user) // Success; respond with the updated user object
+    res.send(req.user) // Success; respond with the updated user object
   } catch (e) {
     res.status(400).send(e)
   }
