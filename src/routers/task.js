@@ -42,7 +42,7 @@ router.get('/tasks/:id', auth, async (req, res) => {
   const _id = req.params.id
   
   try {
-    // SELECT a task from the tasks collection
+    // SELECT and cache a task document from the tasks collection
     // WHERE task id matches req param and owner matches req user id
     const task = await Task.findOne({_id, owner: req.user._id})
 
@@ -58,7 +58,7 @@ router.get('/tasks/:id', auth, async (req, res) => {
 })
 
 // Update a task
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', auth, async (req, res) => {
   // only allow updates to certain fields
   const updates = Object.keys(req.body)
   const allowedUpdates = ['description', 'completed']
@@ -71,8 +71,9 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 
   try {
-    // SELECT task document by id and cache
-    const task = await Task.findById(req.params.id)
+    // SELECT and cache a task document from the tasks collection
+    // WHERE task id matches req param and owner matches req user id
+    const task = await Task.findOne({_id:req.params.id, owner:req.user._id})
 
     if (!task) {
       // no task with that ID found
@@ -85,7 +86,7 @@ router.patch('/tasks/:id', async (req, res) => {
     })
 
     // UPDATE/SET modified task document in tasks collection
-    task.save()
+    await task.save()
 
     res.send(task) // respond with the updated task object
   } catch (e) {
