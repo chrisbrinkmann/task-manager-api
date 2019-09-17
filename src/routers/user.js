@@ -112,17 +112,12 @@ router.patch('/users/:id', async (req, res) => {
 })
 
 // Delete a user
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/me', auth, async (req, res) => {
   try {
     // DELETE a user document from the users collection
-    const user = await User.findByIdAndDelete(req.params.id)
+    await User.deleteOne({_id: req.user._id})
 
-    if (!user) {
-      // no user with that ID found
-      return res.status(404).send()
-    }
-
-    res.send(user) // Success; respond with the deleted user object
+    res.send(req.user) // Success; respond with the deleted user object
   } catch (e) {
     res.status(500).send()
   }
