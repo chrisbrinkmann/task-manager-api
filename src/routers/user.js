@@ -26,7 +26,9 @@ router.post('/users/login', async (req, res) => {
     // SELECT user document by email and password and cache
     const user = await User.findByCredentials(req.body.email, req.body.password)
     
-    res.send(user) // respond with the user object
+    const token = await user.generateAuthToken() // cache user JWT
+
+    res.send({ user, token }) // respond with the user object, JWT
   } catch (e) {
     res.status(400).send(e)
   }
