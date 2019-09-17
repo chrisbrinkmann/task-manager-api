@@ -24,12 +24,13 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// Retrieve all tasks
-router.get('/tasks', async (req, res) => {
+// Retrieve all tasks for current user
+router.get('/tasks', auth, async (req, res) => {
   try {
-    // SELECT all tasks from tasks collection
-    const tasks = await Task.find({})
-    res.send(tasks) // respond with an array of tasks
+    // Populate user 'tasks' virtual field
+    await req.user.populate('tasks').execPopulate()
+    
+    res.send(req.user.tasks) // respond with an array of tasks
   } catch (e) {
     res.status(500).send(e)
   }
