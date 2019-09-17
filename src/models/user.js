@@ -51,6 +51,14 @@ const userSchema = new mongoose.Schema({
 })
 
 /**
+ * Virtual fields
+ */
+
+userSchema.virtual('tasks', {
+  ref: 'Task'
+})
+
+/**
  * Model Methods
  */
 
