@@ -16,7 +16,19 @@ router.post('/users', async (req, res) => {
     await user.save()
     res.status(201).send(user) // respond with user object
   } catch (e) {
-    res.status(400).send(err)
+    res.status(400).send(e)
+  }
+})
+
+// Log in a user
+router.post('/users/login', async (req, res) => {
+  try {
+    // SELECT user document by email and password and cache
+    const user = await User.findByCredentials(req.body.email, req.body.password)
+    
+    res.send(user) // respond with the user object
+  } catch (e) {
+    res.status(400).send(e)
   }
 })
 
@@ -60,7 +72,7 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-    // SELECT user document instance by Id and cache
+    // SELECT user document by Id and cache
     const user = await User.findById(req.params.id)
 
     if (!user) {
@@ -68,12 +80,12 @@ router.patch('/users/:id', async (req, res) => {
       return res.status(404).send()
     }
 
-    // modify cached document instance fields
+    // modify cached document fields
     updates.map(update => {
       user[update] = req.body[update]
     })
 
-    // UPDATE/SET modified instance in users collection
+    // UPDATE/SET modified document in users collection
     await user.save()
 
     res.send(user) // Success; respond with the updated user object
