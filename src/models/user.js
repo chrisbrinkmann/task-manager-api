@@ -96,6 +96,22 @@ userSchema.methods.generateAuthToken = async function () {
   return token
 }
 
+// Hide user password and token props
+// runs whenever instance of user is passed to JSON.stringify (res.send())
+userSchema.methods.toJSON = function () {
+  const user = this
+  
+  // returns raw object stripped of mongoose innate props
+  const userObject = user.toObject()
+
+  // remove sensitive data
+  delete userObject.password
+  delete userObject.tokens
+
+  // return modified user JSON
+  return userObject
+}
+
 /**
  * Middleware (document)
  */
