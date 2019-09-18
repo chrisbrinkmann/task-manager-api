@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema({
       }
     }
   ]
+}, {
+    timestamps: true
 })
 
 /**
@@ -141,6 +143,10 @@ userSchema.pre('save', async function(next) {
 
   next() // calls the next middlware in lexical order
 })
+
+/**
+ * Middleware (query)
+ */
 
 // Delete tasks of deleted user; runs before any call of User.findOneAndDelete()
 userSchema.pre('findOneAndDelete', async function(next) {
