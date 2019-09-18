@@ -1,7 +1,11 @@
 const express = require('express')
+const multer = require('multer')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 const router = new express.Router() // create express router object
+const upload = multer({
+  dest: 'avatars'
+})
 
 /**
  * Users collection CRUD endpoints
@@ -20,6 +24,11 @@ router.post('/users', async (req, res) => {
   } catch (e) {
     res.status(400).send(e)
   }
+})
+
+// Upload a user profile image
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+  res.send()
 })
 
 // Log in a user
@@ -107,6 +116,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
   try {
     // DELETE a user document from the users collection
+    // also triggers middleware which deletes all of that user's tasks
     await User.findOneAndDelete({ _id: req.user._id })
 
     res.send(req.user) // Success; respond with the deleted user object
