@@ -23,7 +23,7 @@ router.post('/users', async (req, res) => {
   }
 })
 
-// set upload options
+// set upload options for upload profile image route
 const upload = multer({
   dest: 'avatars',
   limits: {
@@ -42,6 +42,8 @@ const upload = multer({
 // Upload a user profile image
 router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
   res.send()
+}, (error, req, res, next) => {
+  res.status(400).send({ error: error.message })
 })
 
 // Log in a user
