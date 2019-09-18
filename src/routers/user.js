@@ -107,11 +107,11 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
   try {
     // DELETE a user document from the users collection
-    await User.deleteOne({_id: req.user._id})
+    await User.findOneAndDelete({ _id: req.user._id })
 
     res.send(req.user) // Success; respond with the deleted user object
   } catch (e) {
-    res.status(500).send()
+    res.status(500).send(e)
   }
 })
 
