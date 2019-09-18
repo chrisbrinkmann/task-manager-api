@@ -110,6 +110,25 @@ router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
 })
 
+// Read user avatar image
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    // SELECT user from collection WHERE _id = req id param
+    const user = await User.findById(req.params.id)
+
+    if (!user || !user.avatar) {
+      // user or avatar not found
+      throw new Error('Requested data not found.')  
+    }
+
+    // success; set content type and respond with avatar image
+    res.set('Content-Type', 'image/jpg')
+    res.send(user.avatar)
+  } catch (e) {
+    res.status(404).send(e)
+  }
+})
+
 // Update a user
 router.patch('/users/me', auth, async (req, res) => {
   // only allow certain updates to certain fields
