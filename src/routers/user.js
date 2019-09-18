@@ -3,6 +3,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const { sendWelcomeEmail, sendGoodbyeEmail } = require('../emails/account')
 const router = new express.Router() // create express router object
 
 /**
@@ -15,8 +16,11 @@ router.post('/users', async (req, res) => {
   const user = new User(req.body)
 
   try {
-    // create user JWT (also saves user instance to collection)
+    // create user JWT (also saves [INSERT/UPDATE] user instance to collection)
     const token = await user.generateAuthToken()
+
+    // send user a welcome email
+    sendWelcomeEmail(user.email, user.name)
 
     res.status(201).send({ user, token }) // respond with user object
   } catch (e) {
@@ -71,7 +75,7 @@ router.post('/users/login', async (req, res) => {
     // SELECT user document by email and password and cache
     const user = await User.findByCredentials(req.body.email, req.body.password)
 
-    // create user JWT (also saves user instance to collection)
+    // create user JWT (also saves [INSERT/UPDATE] user instance to collection)
     const token = await user.generateAuthToken()
 
     res.send({ user, token }) // respond with the user object, JWT
