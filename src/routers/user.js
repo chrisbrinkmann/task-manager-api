@@ -1,5 +1,6 @@
 const express = require('express')
 const multer = require('multer')
+const sharp = require('sharp')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 const router = new express.Router() // create express router object
@@ -44,8 +45,15 @@ router.post(
   auth,
   upload.single('avatar'),
   async (req, res) => {
-    // multer passes uploaded file to req.file.buffer; assign it to the user
-    req.user.avatar = req.file.buffer
+    // multer provides access to uploaded img thru req.file.buffer
+    // use sharp to resize and convert the uploaded img to png
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer()
+
+    // assign modified img buffer to user
+    req.user.avatar = buffer
 
     // UPDATE.SET modified user document to the collection
     await req.user.save()
@@ -118,11 +126,11 @@ router.get('/users/:id/avatar', async (req, res) => {
 
     if (!user || !user.avatar) {
       // user or avatar not found
-      throw new Error('Requested data not found.')  
+      throw new Error('Requested data not found.')
     }
 
-    // success; set content type and respond with avatar image
-    res.set('Content-Type', 'image/jpg')
+    // success; set content type and respond with user's avatar image
+    res.set('Content-Type', 'image/png')
     res.send(user.avatar)
   } catch (e) {
     res.status(404).send(e)
