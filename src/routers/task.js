@@ -24,7 +24,9 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// Retrieve some or all tasks for current user; filtered by req query string
+// Retrieve some or all tasks for current user
+// filter: /tasks?completed=true
+// pagination: /tasks?limit=2&skip=0
 router.get('/tasks', auth, async (req, res) => {
   // filter object
   const match = {}
@@ -39,7 +41,11 @@ router.get('/tasks', auth, async (req, res) => {
     // Populate user 'tasks' virtual field
     await req.user.populate({  
       path: 'tasks',
-      match: match // apply the filter; specifies what tasks to populate
+      match: match, // apply the filter; specifies what tasks to populate
+      options: {
+        limit: parseInt(req.query.limit), // pagination limit
+        skip: parseInt(req.query.skip) // pagination skip
+      }
     }).execPopulate()
     
     res.send(req.user.tasks) // respond with an array of tasks
