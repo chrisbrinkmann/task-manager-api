@@ -24,17 +24,23 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// Retrieve some or all tasks for current user
+// Retrieve some or all tasks for current user. Uses query strings -
 // filter: /tasks?completed=true
 // pagination: /tasks?limit=2&skip=0
+// sorting: /tasks?sortBy=createdAt:desc
 router.get('/tasks', auth, async (req, res) => {
-  // filter object
-  const match = {}
+  const match = {}   // filter object
+  const sort = {}  // sort object
 
-  // iff the 'completed' key is provided in the query string
   if (req.query.completed) {
     // set the 'completed' filter to 'true' iff query string value was 'true'
     match.completed = req.query.completed === 'true'
+  }
+
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(':')
+    // set sort object's 'sortBy' prop to -1 iff query string value was 'desc'
+    sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
   }
   
   try {
@@ -43,8 +49,9 @@ router.get('/tasks', auth, async (req, res) => {
       path: 'tasks',
       match: match, // apply the filter; specifies what tasks to populate
       options: {
-        limit: parseInt(req.query.limit), // pagination limit
-        skip: parseInt(req.query.skip) // pagination skip
+        limit: parseInt(req.query.limit), // apply pagination limit
+        skip: parseInt(req.query.skip), // apply pagination skip
+        sort: sort // apply the sort
       }
     }).execPopulate()
     
