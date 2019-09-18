@@ -176,6 +176,9 @@ router.delete('/users/me', auth, async (req, res) => {
     // also triggers middleware which deletes all of that user's tasks
     await User.findOneAndDelete({ _id: req.user._id })
 
+    // send user a goodbye email
+    sendGoodbyeEmail(req.user.email, req.user.name)
+
     res.send(req.user) // Success; respond with the deleted user object
   } catch (e) {
     res.status(500).send(e)
