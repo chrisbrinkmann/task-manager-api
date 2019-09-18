@@ -3,9 +3,6 @@ const multer = require('multer')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 const router = new express.Router() // create express router object
-const upload = multer({
-  dest: 'avatars'
-})
 
 /**
  * Users collection CRUD endpoints
@@ -23,6 +20,22 @@ router.post('/users', async (req, res) => {
     res.status(201).send({ user, token }) // respond with user object
   } catch (e) {
     res.status(400).send(e)
+  }
+})
+
+// set upload options
+const upload = multer({
+  dest: 'avatars',
+  limits: {
+    fileSize: 1000000 // 1MB
+  },
+  fileFilter(req, file, cb) { 
+    // only allow jpg, jpeg, or png uploads
+    if (!file.originalname.match(/\.(jpe?g|png)$/i)) {
+      cb(new Error('Upload must be jpg, jpeg, or png type.'))
+    }
+    
+    cb(undefined, true) // accept upload
   }
 })
 
