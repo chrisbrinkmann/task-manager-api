@@ -25,26 +25,37 @@ router.post('/users', async (req, res) => {
 
 // set upload options for upload profile image route
 const upload = multer({
-  dest: 'avatars',
   limits: {
     fileSize: 1000000 // 1MB
   },
-  fileFilter(req, file, cb) { 
+  fileFilter(req, file, cb) {
     // only allow jpg, jpeg, or png uploads
     if (!file.originalname.match(/\.(jpe?g|png)$/i)) {
       cb(new Error('Upload must be jpg, jpeg, or png type.'))
     }
-    
+
     cb(undefined, true) // accept upload
   }
 })
 
 // Upload a user profile image
-router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
-  res.send()
-}, (error, req, res, next) => {
-  res.status(400).send({ error: error.message })
-})
+router.post(
+  '/users/me/avatar',
+  auth,
+  upload.single('avatar'),
+  async (req, res) => {
+    // multer passes uploaded file to req.file.buffer; assign it to the user
+    req.user.avatar = req.file.buffer
+
+    // UPDATE.SET modified user document to the collection
+    await req.user.save()
+
+    res.send()
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message })
+  }
+)
 
 // Log in a user
 router.post('/users/login', async (req, res) => {
@@ -135,6 +146,20 @@ router.delete('/users/me', auth, async (req, res) => {
     await User.findOneAndDelete({ _id: req.user._id })
 
     res.send(req.user) // Success; respond with the deleted user object
+  } catch (e) {
+    res.status(500).send(e)
+  }
+})
+
+// Delete a user's avatar image
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  // modify current user avatar
+  req.user.avatar = undefined
+  try {
+    // UPDATE/SET document to the collection
+    await req.user.save()
+
+    res.send()
   } catch (e) {
     res.status(500).send(e)
   }
