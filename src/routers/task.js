@@ -24,11 +24,23 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// Retrieve all tasks for current user
+// Retrieve some or all tasks for current user; filtered by req query string
 router.get('/tasks', auth, async (req, res) => {
+  // filter object
+  const match = {}
+
+  // iff the 'completed' key is provided in the query string
+  if (req.query.completed) {
+    // set the 'completed' filter to 'true' iff query string value was 'true'
+    match.completed = req.query.completed === 'true'
+  }
+  
   try {
     // Populate user 'tasks' virtual field
-    await req.user.populate('tasks').execPopulate()
+    await req.user.populate({  
+      path: 'tasks',
+      match: match // apply the filter; specifies what tasks to populate
+    }).execPopulate()
     
     res.send(req.user.tasks) // respond with an array of tasks
   } catch (e) {
