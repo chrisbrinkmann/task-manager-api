@@ -122,9 +122,10 @@ userSchema.methods.toJSON = function() {
   // returns raw object stripped of mongoose innate props
   const userObject = user.toObject()
 
-  // remove sensitive data
+  // remove sensitive or extraneous data
   delete userObject.password
   delete userObject.tokens
+  delete userObject.avatar
 
   // return modified user JSON
   return userObject
