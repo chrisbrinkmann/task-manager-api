@@ -43,12 +43,14 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  tokens: [{
-    token: {
-      type: String,
-      required: true
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true
+      }
     }
-  }]
+  ]
 })
 
 /**
@@ -92,12 +94,12 @@ userSchema.statics.findByCredentials = async (email, password) => {
  */
 
 // Generate and return a JWT for a user
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function() {
   const user = this
 
   // generate JWT from user's id and secret
-  const token = jwt.sign({ _id: user._id.toString()}, 'fitwindsam')
-  
+  const token = jwt.sign({ _id: user._id.toString() }, 'fitwindsam')
+
   // Add JWT to user's props
   user.tokens = user.tokens.concat({ token })
 
@@ -109,9 +111,9 @@ userSchema.methods.generateAuthToken = async function () {
 
 // Hide user password and token props
 // triggered whenever instance of user is passed to JSON.stringify (res.send())
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJSON = function() {
   const user = this
-  
+
   // returns raw object stripped of mongoose innate props
   const userObject = user.toObject()
 
@@ -128,7 +130,7 @@ userSchema.methods.toJSON = function () {
  */
 
 // Encrypt user password; runs before any call to user.save()
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function(next) {
   const user = this // for readability; this = document calling .save()
 
   // if password field is created of modified
@@ -140,12 +142,12 @@ userSchema.pre('save', async function (next) {
   next() // calls the next middlware in lexical order
 })
 
-// Delete tasks of deleted user; runs before any call of user.remove()
-userSchema.pre('remove', async function (next) {
-  const user = this // the document calling .remove()
-
+// Delete tasks of deleted user; runs before any call of User.findOneAndDelete()
+userSchema.pre('findOneAndDelete', async function(next) {
+  const _id = this.getQuery()._id // cache the _id prop from the returned query object
+  
   // DELETE any tasks WHERE owner === user._id
-  Task.deleteMany({ owner: user._id })
+  await Task.deleteMany({ owner: _id })
 
   next()
 })
