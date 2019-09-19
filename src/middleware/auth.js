@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization').replace('Bearer ', '')
 
     // returns the decoded request token payload (the user _id prop)
-    const decoded = jwt.verify(token, 'fitwindsam')
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     // Query users collection for user with matching id and token prop
     const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
