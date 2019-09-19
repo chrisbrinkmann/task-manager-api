@@ -1,14 +1,9 @@
-const express = require('express')
-require('./db/mongoose')
-const userRouter = require('./routers/user')
-const taskRouter = require('./routers/task')
-
-const app = express()
+const app = require('./app')
 const port = process.env.PORT
 
-app.use(express.json()) // auto parse req json to object
-app.use(userRouter) // register routers with app
-app.use(taskRouter)
+/**
+ * Start server
+ */
 
 app.listen(port, () => {
   console.log('Server is listening on port: ' + port)
