@@ -16,9 +16,11 @@
   },
   "devDependencies": {
     "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
     "nodemon": "^1.19.2"
   },
   "scripts": {
+    "test": "jest",
     "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config src/index.js"
   },
