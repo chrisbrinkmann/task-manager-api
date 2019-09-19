@@ -20,9 +20,13 @@
     "nodemon": "^1.19.2"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch",
     "start": "node src/index.js",
-    "dev": "nodemon -r dotenv/config src/index.js"
+    "dev": "nodemon -r dotenv/config src/index.js dotenv_config_path=./config/.env"
+  },
+  "jest": {
+    "setupFiles": ["./config/jest.config.js"],
+    "testEnvironment": "node"
   },
   "author": "",
   "license": "ISC"
