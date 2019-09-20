@@ -1,7 +1,8 @@
 node_modules/
 playground/
-tests/
 config/
 
 .env
 .env.test
+
+notes.txt
