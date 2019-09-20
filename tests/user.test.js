@@ -34,14 +34,14 @@ beforeEach(async () => {
 // Create new user
 test('Should signup a new user', async () => {
   const response = await request(app)
-    .post('/users') // insert to DB 
+    .post('/users') // insert to DB
     .send({
       name: 'Andrew',
       email: 'andrew@example.com',
       password: 'MyPass777!'
     })
     .expect(201) // Assert res.status
-  
+
   // Assert that the DB was changed correctly
   const user = await User.findById(response.body.user._id) // DB query
   expect(user).not.toBeNull()
@@ -59,6 +59,20 @@ test('Should signup a new user', async () => {
   expect(user.password).not.toBe('MyPass777!')
 })
 
+// Upload profile avatar image
+test('Should upload avatar image', async () => {
+  await request(app)
+    .post('/users/me/avatar') // update to DB (user.avatar)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .attach('avatar', 'tests/fixtures/profile-pic.jpg')
+    .expect(200) // Assert res.status
+
+  const user = await User.findById(userOneId) // DB query
+
+  // Assert user.avatar has Buffer type
+  expect(user.avatar).toEqual(expect.any(Buffer))
+})
+
 // Login existing user
 test('Should login existing user', async () => {
   const response = await request(app)
@@ -68,7 +82,7 @@ test('Should login existing user', async () => {
       password: userOne.password
     })
     .expect(200) // Assert res.status
-  
+
   const user = await User.findById(response.body.user._id) // DB query
 
   // Assert that the response token matches the user's next token
@@ -103,15 +117,45 @@ test('Should not get profile for unauthenticated user', async () => {
     .expect(401) // Assert res.status
 })
 
+// Update valid user fields
+test('Should update valid user fields', async () => {
+  await request(app)
+    .patch('/users/me') // update DB (user.name)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      name: 'Al Swearengen'
+    })
+    .expect(200) // Assert res.status
+
+  const user = await User.findById(userOneId) // DB query
+
+  expect(user.name).toBe('Al Swearengen') // Assert DB updated
+})
+
+// Update invalid user fields
+test('Should not update invalid user fields', async () => {
+  await request(app)
+    .patch('/users/me') // update DB (user.name)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      location: "South Dakota"
+    })
+    .expect(400) // Assert res.status
+
+  const user = await User.findById(userOneId) // DB query
+
+  expect(user.name).toBe('Mike') // Assert DB not updated
+})
+
 // Delete user account
-test('Should delete account for user', async () => {
+test('Should delete account for authorized user', async () => {
   await request(app)
     .delete('/users/me') // delete from DB
     .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
     .send()
     .expect(200) // Assert res.status
-  
-  const user = await User.findById(userOneId) // DB query 
+
+  const user = await User.findById(userOneId) // DB query
 
   // Assert userOne no longer in DB after delete
   expect(user).toBeNull()
