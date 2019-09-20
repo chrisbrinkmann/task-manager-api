@@ -61,13 +61,18 @@ test('Should signup a new user', async () => {
 
 // Login existing user
 test('Should login existing user', async () => {
-  await request(app)
+  const response = await request(app)
     .post('/users/login')
     .send({
       email: userOne.email,
       password: userOne.password
     })
     .expect(200)
+  
+  const user = await User.findById(response.body.user._id)
+
+  // Assert that the response token matches the user's next token
+  expect(user.tokens[1].token).toBe(response.body.token)
 })
 
 // Login user: nonexistant email
@@ -105,6 +110,11 @@ test('Should delete account for user', async () => {
     .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
     .send()
     .expect(200)
+  
+  const user = await User.findById(userOneId)
+
+  // Assert userOne no longer in DB after delete
+  expect(user).toBeNull()
 })
 
 // Delete user account, no auth token
