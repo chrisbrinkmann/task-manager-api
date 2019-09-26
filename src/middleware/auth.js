@@ -5,10 +5,7 @@ const User = require('../models/user')
 const auth = async (req, res, next) => {
   try {
     // cache the token from the 'Authorization' request header
-    // const token = req.header('Authorization').replace('Bearer ', '')
-
-    // get token from request cookies instead of 'Authorization' header
-    const token = req.cookies['auth_token']
+    const token = req.header('Authorization').replace('Bearer ', '')
 
     // returns the decoded request token payload (the user _id prop)
     const decoded = jwt.verify(token, process.env.JWT_SECRET)

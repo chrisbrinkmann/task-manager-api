@@ -5,7 +5,6 @@ const User = require('../models/user')
 const auth = require('../middleware/auth')
 const { sendWelcomeEmail, sendGoodbyeEmail } = require('../emails/account')
 const router = new express.Router() // create express router object
-const path = require('path')
 
 /**
  * Users collection CRUD endpoints
@@ -13,6 +12,7 @@ const path = require('path')
 
 // Create a new user document - "sign up"
 router.post('/users', async (req, res) => {
+  console.log(req.body)
   // Create a new instance of the document model
   const user = new User(req.body)
 
@@ -23,12 +23,7 @@ router.post('/users', async (req, res) => {
     // send user a welcome email
     //sendWelcomeEmail(user.email, user.name)
 
-    res.cookie('auth_token', token) // send the token back as a cookie
-
-    // send the authenticate user to private.html
-    res.sendFile(path.resolve(__dirname, '..', 'views', 'private.html'))
-
-    // res.status(201).send({ user, token }) // respond with user object
+    res.status(201).send({ user, token }) // respond with user object
   } catch (e) {
     res.status(400).send(e)
   }
@@ -84,12 +79,7 @@ router.post('/users/login', async (req, res) => {
     // create user JWT (also saves [INSERT/UPDATE] user instance to collection)
     const token = await user.generateAuthToken()
 
-    res.cookie('auth_token', token) // send the token back as a cookie
-
-    // send the authenticate user to private.html
-    res.sendFile(path.resolve(__dirname, '..', 'views', 'private.html'))
-
-    // res.send({ user, token }) // respond with the user object, JWT
+    res.send({ user, token }) // respond with the user object, JWT
   } catch (e) {
     res.status(400).send(e)
   }
